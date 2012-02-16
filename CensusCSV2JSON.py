@@ -2,30 +2,27 @@
 
 import sys
 import pprint
+import string
+import csv
 
 filename = sys.argv[1]
-csvFile = open(filename, 'r')
+#csvFile = open(filename, 'r')
+csv = csv.reader(open(sys.argv[1], 'r'), delimiter=',', quotechar='"')
+
 
 trade_data = {}
 
-months_template = [
-{'month_name': 'January',   'imports': {}, 'exports': {}},
-{'month_name': 'February',  'imports': {}, 'exports': {}},
-{'month_name': 'March',     'imports': {}, 'exports': {}},
-{'month_name': 'April',     'imports': {}, 'exports': {}},
-{'month_name': 'May',       'imports': {}, 'exports': {}},
-{'month_name': 'June',      'imports': {}, 'exports': {}},
-{'month_name': 'July',      'imports': {}, 'exports': {}},
-{'month_name': 'August',    'imports': {}, 'exports': {}},
-{'month_name': 'September', 'imports': {}, 'exports': {}},
-{'month_name': 'October',   'imports': {}, 'exports': {}},
-{'month_name': 'November',  'imports': {}, 'exports': {}},
-{'month_name': 'December',  'imports': {}, 'exports': {}}
-]
+#header = csvFile.readline()
+header = csv.next()
+#print header
 
-for line in csvFile:
-   parts = line.split(',')
-   
+for parts in csv:
+   #line = string.replace(line, "\r", "")
+   #line = string.replace(line, "\n", "")
+   #parts = line.split(',')
+  
+
+ 
    # ignore non data lines by trying to read year
    year = None
    try:
@@ -37,13 +34,18 @@ for line in csvFile:
       # have a real data line
       if year not in trade_data:
          # have a new year
-         trade_data[year] = months_template
+         trade_data[year] = {}
       country_name = parts[2]
-      if country_name not in trade_data[year][0]['imports']:
-         for month_index in range(0, len(months_template)):
-            trade_data[year][month_index]['imports'][country_name] = None
-            trade_data[year][month_index]['exports'][country_name] = None
-
+      if country_name not in trade_data[year]:
+         trade_data[year][country_name] = {}
+     
+ 
+      trade_data[year][country_name]['imports_by_month']   = parts[3:15]
+      trade_data[year][country_name]['imports_year_total'] = parts[15]
+      trade_data[year][country_name]['exports_by_month']   = parts[16:28]
+      trade_data[year][country_name]['exports_year_total'] = parts[28]
+      
+      
 
 # iterate through dict sorted by key (year)
 it = iter(sorted(trade_data.iteritems()))
@@ -54,7 +56,10 @@ while True:
    except StopIteration:
       break
 
-   print str(year[0]) + ': {}'
+   #print str(year[0]) + ': {}'
 
-pp = pprint.PrettyPrinter(indent=3)
-pp.pprint(trade_data)
+#pp = pprint.PrettyPrinter(indent=3)
+#pp.pprint(trade_data)
+
+json = str(trade_data)
+print string.replace(json, ' ', '')
