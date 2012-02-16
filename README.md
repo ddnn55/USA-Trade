@@ -15,4 +15,4 @@ Future
 Change name from "USA Trade" to "International Trade" and add more data:
 
 * Top imports and exports by origin and destination country: http://www.wto.org/english/res_e/statis_e/statis_e.htm
-* USA International Imports and Exports by US State (Alabama, Arkansas, ...) and origin/destination country
+* USA International Imports and Exports by US State (Alabama, Arkansas, ...) and origin/destination country: http://www.census.gov/foreign-trade/statistics/state/
