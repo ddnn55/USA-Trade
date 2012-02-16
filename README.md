@@ -8,7 +8,7 @@ Usage
 -----
 Convert US Census trade CSV to JSON:
 
-<./CensusCSV2JSON.py usa_trade_data/COUNTRY-Table\ 1.csv \> www/usa_trade_data.js>
+    ./CensusCSV2JSON.py usa_trade_data/COUNTRY-Table\ 1.csv > www/usa_trade_data.js
 
 Future
 ------
