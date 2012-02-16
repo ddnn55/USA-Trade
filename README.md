@@ -10,6 +10,10 @@ Convert US Census trade CSV to JSON:
 
     ./CensusCSV2JSON.py usa_trade_data/COUNTRY-Table\ 1.csv > www/usa_trade_data.js
 
+Preview locally:
+
+    cd www; python -m SimpleHTTPServer
+
 Future
 ------
 Change name from "USA Trade" to "International Trade" and add more data:
