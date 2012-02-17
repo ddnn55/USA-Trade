@@ -8,16 +8,21 @@
     <style type="text/css">
       html { height: 100% }
       body { height: 100%; margin: 0; padding: 0 }
-      #map_canvas { height: 100% }
+      .overlay { background-color: white; opacity:0.8; filter:alpha(opacity=80); }
+      #timeline { height: 3em; width: 100%; z-index: 1000; position: fixed; top: 0px; left: 0px;}
+      #sidebar { width: 15em; z-index:1001; position:fixed; top:3em; bottom:0px; right:0px; }
+      #map_canvas { height: * }
     </style> 
-
+    <link type="text/css" href="css/start/jquery-ui-1.8.17.custom.css" rel="Stylesheet" />
     <script type="text/javascript"
       src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCkETvZyOg_-XCWnwlTRFKbnO-sMlGOqvk&sensor=false">
     </script>
     <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-1.8.17.custom.min.js"></script>
     <script type="text/javascript">
       var map;
       var trade_paths = {};
+      var years;
 
       function createTradeLine(country) {
         var fromCoordinate = new google.maps.LatLng(39.095963,-97.207031); // USA
@@ -48,10 +53,19 @@
       }
 
 
+      function setYear(year) {
+         $.each(years[year], function(country, stats) {
+            if(country in trade_paths) {
+               trade_paths[country].setOptions({ strokeWeight: 2 });
+            }
+         });
+      }
+
+
       function initialize() {
          var myOptions = {
             center: new google.maps.LatLng(0, 150.644),
-
+            disableDefaultUI: true,
             zoom: 2,
             mapTypeId: google.maps.MapTypeId.ROADMAP
          };
@@ -68,15 +82,52 @@
                   });
                }
                if(key == 'trade') {
+                  years = value;
+                  low = -1;
+                  high = -1;
                   $.each(value, function(year, countries) {
-                     //console.log(year);
+
+                     year = parseInt(year);
+
+                     if(high == -1) {
+                        high = year;
+                        low = year;
+                     }
+                     if(year > high)
+                        high = year;
+                     if(year < low)
+                        low = year;
                   });
+
+                  console.log(low);
+                  console.log(high);
+
+                  $( "#slider" ).slider({
+                     value:low,
+                     min: low,
+                     max: high,
+                     step: 1,
+                     slide: function( event, ui ) {
+                        $( "#year" ).val( "$" + ui.value );
+                     }
+                  });
+                  $( "#year" ).val( "$" + $( "#slider" ).slider( "value" ) );
+
                }
             });
 
             console.log(trade_paths);
 
+            setYear(2011);
+
          });
+
+
+
+         
+
+
+
 
 
       }
@@ -89,27 +140,40 @@
 
     </script>
 
-	<!-- Google Analytics -->
-	<script type="text/javascript">
-	  var _gaq = _gaq || [];
-	  _gaq.push(['_setAccount', 'UA-12257817-1']);
-	  _gaq.push(['_trackPageview']);
+   <!-- Google Analytics -->
+   <script type="text/javascript">
+     var _gaq = _gaq || [];
+     _gaq.push(['_setAccount', 'UA-12257817-1']);
+     _gaq.push(['_trackPageview']);
 
-	  (function() {
-	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	  })();
-	</script>
+     (function() {
+       var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+       ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+     })();
+   </script>
 
   </head>
   <body onload="initialize()">
 
 
-<div id="data"></div>
-
 <!-- stuff goes here -->
-<div id="map_canvas" style="width:100%; height:100%"></div>
+
+
+
+
+
+<div id="timeline" class="overlay">
+   <p>
+      <input type="text" id="year" style="border:0; color:#f6931f; font-weight:bold;" />
+   </p>
+
+   <div id="slider"></div>
+</div>
+<!--<div id="sidebar" class="overlay"></div>-->
+
+<div id="map_canvas" style="width:100%; height:100%;"></div>
+
 
 <script src="http://static.getclicky.com/js" type="text/javascript"></script>
 <script type="text/javascript">try{ clicky.init(66493014); }catch(e){}</script>
