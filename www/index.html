@@ -24,57 +24,105 @@
     <script type="text/javascript" src="js/jquery-ui-1.8.17.custom.min.js"></script>
     <script type="text/javascript">
       USA_SPACING = 7.0;
+      THOUSAND_DOLLARS_PER_PIXEL_WIDTH = 100000.0;
+      USA_COORDINATE = new google.maps.LatLng(39.095963,-97.207031); // USA
 
       var map;
-      var trade_paths = {};
+      var trade_flows = {};
       var years;
 
-      function createTradeLine(country_name, country) {
-        var usaCoordinate = new google.maps.LatLng(39.095963,-97.207031); // USA
+      function createTradeFlows(country_name, country) {
+        //var USA_COORDINATE = new google.maps.LatLng(39.095963,-97.207031); // USA
         var   toCoordinate = new google.maps.LatLng(country['latLng'][0], country['latLng'][1]);
 
-        //console.log(usaCoordinate);
-        // TODO fix this for polar coordinates and then we can use it.
-        var heading = google.maps.geometry.spherical.computeHeading(usaCoordinate, toCoordinate);
-        heading = heading * Math.PI / 180.0;
-        var usaRoomCoordinate = new google.maps.LatLng(
-           usaCoordinate.lat() + USA_SPACING * Math.cos(heading),
-           usaCoordinate.lng() + 2 * USA_SPACING * Math.sin(heading)
-        );
-        //console.log(usaRoomCoordinate);
-           
-        var coordinates = [ usaRoomCoordinate, toCoordinate ];
+        var heading        = google.maps.geometry.spherical.computeHeading(USA_COORDINATE, toCoordinate);
+        var reverseHeading = google.maps.geometry.spherical.computeHeading(toCoordinate, USA_COORDINATE);
+        heading        = heading * Math.PI / 180.0;
+        reverseHeading = reverseHeading * Math.PI / 180.0;
+        var usaRoomCoordinate = new google.maps.LatLng(USA_COORDINATE.lat() +     USA_SPACING * Math.cos(heading),
+                                                       USA_COORDINATE.lng() + 2 * USA_SPACING * Math.sin(heading));
+      
 
-        var userPath = new google.maps.Polyline({
-           path: coordinates,
-           strokeColor: '#CC3333',
-           strokeOpacity: 0.8,
-           strokeWeight: 10,
-           geodesic: true,
-        });
+        var exportCoordinates = [ usaRoomCoordinate, toCoordinate, toCoordinate, usaRoomCoordinate ];
+        var importCoordinates = [ toCoordinate, usaRoomCoordinate, usaRoomCoordinate, toCoordinate ];
 
-        userPath.setMap(map);
+        function createPath(type, country_name, coords, color, hover_color) {
+           var flow = new google.maps.Polygon({
+              path: coords,
+              fillColor: color,
+              fillOpacity: 0.8,
+              strokeWeight: 0,
+              geodesic: true
+           });
 
-        google.maps.event.addListener(userPath, 'mouseover', function(event) {
-           userPath.setOptions({ strokeColor: '#FF6666'});
-           tooltip.show(country_name, 200);
-        });
-        google.maps.event.addListener(userPath, 'mousemove', function(event) {
-        });
-        google.maps.event.addListener(userPath, 'mouseout', function(event) {
-           userPath.setOptions({ strokeColor: '#CC3333'});
-           tooltip.hide();
-        });
+           flow.setMap(map);
 
-        return userPath;
+           google.maps.event.addListener(flow, 'mouseover', function(event) {
+              flow.setOptions({ fillColor: hover_color});
+              tooltip.show(country_name, 200);
+           });
+           //google.maps.event.addListener(flow, 'mousemove', function(event) {
+           //});
+           google.maps.event.addListener(flow, 'mouseout', function(event) {
+              flow.setOptions({ fillColor: color});
+              tooltip.hide();
+           });
+           trade_flows[country_name][type] = flow;
+        }
+
+        trade_flows[country_name] = {};
+        createPath('export', country_name, exportCoordinates, '#333333', '#666666');
+        createPath('import', country_name, importCoordinates, '#CC3333', '#FF6666');
       }
 
+      function updateFlow(type, country, trade_volume) {
+         //console.log(trade_flows[country][type]);
+         var fromCoordinate = new google.maps.LatLng(
+            trade_flows[country][type].getPath().getAt(0).lat(),
+            trade_flows[country][type].getPath().getAt(0).lng()
+         );
+         var toCoordinate   = new google.maps.LatLng(
+            trade_flows[country][type].getPath().getAt(1).lat(),
+            trade_flows[country][type].getPath().getAt(1).lng()
+         );
+ 
+         var heading        = google.maps.geometry.spherical.computeHeading(fromCoordinate, toCoordinate);
+         var reverseHeading = google.maps.geometry.spherical.computeHeading(toCoordinate, fromCoordinate);
+         heading        = heading * Math.PI / 180.0;
+         reverseHeading = reverseHeading * Math.PI / 180.0;
+
+
+         var fromLeftHeading  = heading - Math.PI / 2.0;
+         //var fromRightHeading = heading + Math.PI / 2.0;
+         //var toLeftHeading    = reverseHeading - Math.PI / 2.0;
+         var toRightHeading   = reverseHeading + Math.PI / 2.0;
+    
+         // TODO do nice freaky arrow heads
+ 
+         var fromLeftCoord = new google.maps.LatLng(fromCoordinate.lat() + trade_volume * Math.cos(fromLeftHeading) / THOUSAND_DOLLARS_PER_PIXEL_WIDTH,
+                                                    fromCoordinate.lng() + trade_volume * Math.sin(fromLeftHeading) / THOUSAND_DOLLARS_PER_PIXEL_WIDTH);
+         var toRightCoord  = new google.maps.LatLng(toCoordinate.lat()   + trade_volume * Math.cos(toRightHeading) / THOUSAND_DOLLARS_PER_PIXEL_WIDTH,
+                                                    toCoordinate.lng()   + trade_volume * Math.sin(toRightHeading) / THOUSAND_DOLLARS_PER_PIXEL_WIDTH);
+
+         // update toRightCoord
+         trade_flows[country][type].getPath().setAt(2, toRightCoord);
+
+         // update fromLeftCoord
+         trade_flows[country][type].getPath().setAt(3, fromLeftCoord);
+
+      }
+
+      function updateFlows(country, stats) {
+         export_volume = parseFloat(stats['exports_year_total']);
+         import_volume = parseFloat(stats['imports_year_total']);
+         updateFlow('export', country, export_volume);
+         updateFlow('import', country, import_volume);
+      }
 
       function setYear(year) {
          $.each(years[year], function(country, stats) {
-            if(country in trade_paths) {
-               trade_volume = parseFloat(years[year][country]['imports_year_total']);
-               trade_paths[country].setOptions({ strokeWeight: trade_volume / 10000.0 });
+            if(country in trade_flows) {
+               updateFlows(country, stats);
             }
          });
       }
@@ -105,7 +153,7 @@
                          country_name != "OPEC" &&
                          country_name != "Africa" ) {
                         //console.log(country_name);
-                        trade_paths[country_name] = createTradeLine(country_name, country);
+                        createTradeFlows(country_name, country);
                      }
                   });
                }
