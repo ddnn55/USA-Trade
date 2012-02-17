@@ -62,7 +62,7 @@
          $.each(years[year], function(country, stats) {
             if(country in trade_paths) {
                trade_volume = parseFloat(years[year][country]['imports_year_total']);
-               trade_paths[country].setOptions({ strokeWeight: trade_volume / 5000.0 });
+               trade_paths[country].setOptions({ strokeWeight: trade_volume / 10000.0 });
             }
          });
       }
@@ -80,17 +80,20 @@
 
          $.getJSON('usa_trade_data.js', null, function(data) {
             console.log(data);
+            low = -1;
+            high = -1;
             $.each(data, function(key, value) {
                if(key == 'countries') {
                   geocodes = value;
                   $.each(value, function(country_name, country) {
-                     trade_paths[country_name] = createTradeLine(country_name, country);
+                     if( ! (country_name in ["North America", "Europe"]) ) {
+                        console.log(country_name);
+                        trade_paths[country_name] = createTradeLine(country_name, country);
+                     }
                   });
                }
                if(key == 'trade') {
                   years = value;
-                  low = -1;
-                  high = -1;
                   $.each(value, function(year, countries) {
 
                      year = parseInt(year);
@@ -125,7 +128,9 @@
 
             console.log(trade_paths);
 
-            setYear(2011);
+
+            setYear(low);
+
 
          });
 
