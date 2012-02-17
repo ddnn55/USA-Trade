@@ -4,6 +4,7 @@ import sys
 import pprint
 import string
 import csv
+import json
 
 filename = sys.argv[1]
 #csvFile = open(filename, 'r')
@@ -61,5 +62,9 @@ while True:
 #pp = pprint.PrettyPrinter(indent=3)
 #pp.pprint(trade_data)
 
-json = str(trade_data)
-print string.replace(json, ' ', '')
+print json.dumps(trade_data)
+
+#json = str(trade_data[1985])
+#json = string.replace(json, ' ', '')
+#json = string.replace(json, "'", '"')
+#print json
