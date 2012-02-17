@@ -19,6 +19,8 @@
       #slider { width: 74em; margin: 0.5em;}
       #slider_ticks { display: block; }
       #slider_ticks div { display: inline; position:absolute; }
+      .not_current_tick { z-index: 1002; }
+      .current_tick { font-size: 300%; position:absolute; top: -1.25em; margin-left: -1.1em; background-color: #333; padding:0 0.25em; z-index: 1001; }
       /*#sidebar { width: 15em; z-index:1001; position:fixed; top:3em; bottom:0px; right:0px; }*/
       #map_canvas { height: * }
     </style> 
@@ -139,6 +141,7 @@
                updateFlows(country, stats);
             }
          });
+         $('#tick'+year).addClass('current_tick');
       }
 
 
@@ -218,6 +221,8 @@
                      max: high,
                      step: 1,
                      slide: function( event, ui ) {
+                        $('#tick'+current_year).removeClass('current_tick');
+                        $('#tick'+current_year).addClass('not_current_tick');
                         setYear(ui.value);
                         $( "#year" ).val( "$" + ui.value );
                      }
@@ -232,7 +237,7 @@
                   console.log(slider_width);
                   for(y = low; y <= high; y += 1) {
                      fraction = (y - low) / (high - low);
-                     $('#slider_ticks').append('<div id="tick'+y+'">'+y+'</div>');
+                     $('#slider_ticks').append('<div class="not_current_tick" id="tick'+y+'">'+y+'</div>');
                      $('#tick'+y).css({
                         left: (slider_width * (fraction))+10 + "px"
                      });
