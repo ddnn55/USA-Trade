@@ -16,30 +16,20 @@
     </script>
     <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
     <script type="text/javascript">
-      function initialize() {
-        var myOptions = {
-          center: new google.maps.LatLng(0, 150.644),
+      var map;
+      var trade_paths = {};
 
-          zoom: 2,
-          mapTypeId: google.maps.MapTypeId.ROADMAP
-        };
-        var map = new google.maps.Map(document.getElementById("map_canvas"),
-            myOptions);
-
-
+      function createTradeLine(country) {
         var fromCoordinate = new google.maps.LatLng(39.095963,-97.207031); // USA
-        var   toCoordinate = new google.maps.LatLng(34.741612,103.359375); // China
+        var   toCoordinate = new google.maps.LatLng(country['latLng'][0], country['latLng'][1]);
 
-           var coordinates = [
-              fromCoordinate,
-              toCoordinate
-           ];
+        var coordinates = [ fromCoordinate, toCoordinate ];
 
         var userPath = new google.maps.Polyline({
            path: coordinates,
            strokeColor: '#CC3333',
            strokeOpacity: 0.8,
-           strokeWeight: 20,
+           strokeWeight: 10,
            geodesic: true,
         });
 
@@ -54,19 +44,47 @@
            userPath.setOptions({ strokeColor: '#CC3333'});
         });
 
+        return userPath;
+      }
+
+
+      function initialize() {
+         var myOptions = {
+            center: new google.maps.LatLng(0, 150.644),
+
+            zoom: 2,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+         };
+         map = new google.maps.Map(document.getElementById("map_canvas"),
+            myOptions);
+
+         $.getJSON('usa_trade_data.js', null, function(data) {
+            console.log(data);
+            $.each(data, function(key, value) {
+               if(key == 'countries') {
+                  geocodes = value;
+                  $.each(value, function(country_name, country) {
+                     trade_paths[country_name] = createTradeLine(country);
+                  });
+               }
+               if(key == 'trade') {
+                  $.each(value, function(year, countries) {
+                     //console.log(year);
+                  });
+               }
+            });
+
+            console.log(trade_paths);
+
+         });
 
 
       }
 
 
-      $(document).ready(function(){
-         $.getJSON('usa_trade_data.js', null, function(data){
-            console.log(data);
-            $.each(data, function(year, countries) {
-               
-            });
-         });
-      });
+
+
+
 
 
     </script>
