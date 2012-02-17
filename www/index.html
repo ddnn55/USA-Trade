@@ -8,16 +8,18 @@
     <style type="text/css">
       html { height: 100% }
       body { height: 100%; margin: 0; padding: 0 }
-      .overlay { background-color: white; opacity:0.8; filter:alpha(opacity=80); }
+      .overlay { /*background-color: white; opacity:0.8; filter:alpha(opacity=80);*/ }
       #timeline { height: 3em; width: 100%; z-index: 1000; position: fixed; top: 0px; left: 0px;}
       #slider { width: 20em; }
       #sidebar { width: 15em; z-index:1001; position:fixed; top:3em; bottom:0px; right:0px; }
       #map_canvas { height: * }
     </style> 
     <link type="text/css" href="css/start/jquery-ui-1.8.17.custom.css" rel="Stylesheet" />
+    <link type="text/css" href="css/tooltip.css" rel="Stylesheet" />
     <script type="text/javascript"
       src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCkETvZyOg_-XCWnwlTRFKbnO-sMlGOqvk&sensor=false">
     </script>
+    <script type="text/javascript" src="js/tooltip.js"></script>
     <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
     <script type="text/javascript" src="js/jquery-ui-1.8.17.custom.min.js"></script>
     <script type="text/javascript">
@@ -25,7 +27,7 @@
       var trade_paths = {};
       var years;
 
-      function createTradeLine(country) {
+      function createTradeLine(country_name, country) {
         var fromCoordinate = new google.maps.LatLng(39.095963,-97.207031); // USA
         var   toCoordinate = new google.maps.LatLng(country['latLng'][0], country['latLng'][1]);
 
@@ -43,11 +45,13 @@
 
         google.maps.event.addListener(userPath, 'mouseover', function(event) {
            userPath.setOptions({ strokeColor: '#FF6666'});
+           tooltip.show(country_name, 200);
         });
         google.maps.event.addListener(userPath, 'mousemove', function(event) {
         });
         google.maps.event.addListener(userPath, 'mouseout', function(event) {
            userPath.setOptions({ strokeColor: '#CC3333'});
+           tooltip.hide();
         });
 
         return userPath;
@@ -58,7 +62,7 @@
          $.each(years[year], function(country, stats) {
             if(country in trade_paths) {
                trade_volume = parseFloat(years[year][country]['imports_year_total']);
-               trade_paths[country].setOptions({ strokeWeight: trade_volume / 10000.0 });
+               trade_paths[country].setOptions({ strokeWeight: trade_volume / 5000.0 });
             }
          });
       }
@@ -80,7 +84,7 @@
                if(key == 'countries') {
                   geocodes = value;
                   $.each(value, function(country_name, country) {
-                     trade_paths[country_name] = createTradeLine(country);
+                     trade_paths[country_name] = createTradeLine(country_name, country);
                   });
                }
                if(key == 'trade') {
@@ -124,13 +128,6 @@
             setYear(2011);
 
          });
-
-
-
-         
-
-
-
 
 
       }
