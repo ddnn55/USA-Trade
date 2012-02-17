@@ -10,6 +10,7 @@
       body { height: 100%; margin: 0; padding: 0 }
       .overlay { background-color: white; opacity:0.8; filter:alpha(opacity=80); }
       #timeline { height: 3em; width: 100%; z-index: 1000; position: fixed; top: 0px; left: 0px;}
+      #slider { width: 20em; }
       #sidebar { width: 15em; z-index:1001; position:fixed; top:3em; bottom:0px; right:0px; }
       #map_canvas { height: * }
     </style> 
@@ -56,7 +57,8 @@
       function setYear(year) {
          $.each(years[year], function(country, stats) {
             if(country in trade_paths) {
-               trade_paths[country].setOptions({ strokeWeight: 2 });
+               trade_volume = parseFloat(years[year][country]['imports_year_total']);
+               trade_paths[country].setOptions({ strokeWeight: trade_volume / 10000.0 });
             }
          });
       }
@@ -108,6 +110,7 @@
                      max: high,
                      step: 1,
                      slide: function( event, ui ) {
+                        setYear(ui.value);
                         $( "#year" ).val( "$" + ui.value );
                      }
                   });
@@ -164,10 +167,7 @@
 
 
 <div id="timeline" class="overlay">
-   <p>
-      <input type="text" id="year" style="border:0; color:#f6931f; font-weight:bold;" />
-   </p>
-
+   <input type="text" id="year" style="border:0; color:#f6931f; font-weight:bold;" />
    <div id="slider"></div>
 </div>
 <!--<div id="sidebar" class="overlay"></div>-->
