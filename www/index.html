@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Web Hack Boilerplate</title>
+    <title>US Imports and Exports, 1985-2011</title>
     <style type="text/css">
       html { height: 100% }
       body { height: 100%; margin: 0; padding: 0 }
@@ -14,10 +14,12 @@
     <script type="text/javascript"
       src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCkETvZyOg_-XCWnwlTRFKbnO-sMlGOqvk&sensor=false">
     </script>
+    <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
     <script type="text/javascript">
       function initialize() {
         var myOptions = {
-          center: new google.maps.LatLng(-34.397, 150.644),
+          center: new google.maps.LatLng(0, 150.644),
+
           zoom: 2,
           mapTypeId: google.maps.MapTypeId.ROADMAP
         };
@@ -43,30 +45,30 @@
 
         userPath.setMap(map);
 
-
-
-//var contentString = 'China Exports to USA: $$$$$$$$$$';
-
-//var infowindow = new google.maps.InfoWindow({
-//    content: contentString
-//});
-
-
         google.maps.event.addListener(userPath, 'mouseover', function(event) {
            userPath.setOptions({ strokeColor: '#FF6666'});
-  //         infowindow.setPosition(event.latLng);
-  //         infowindow.open(map);
         });
         google.maps.event.addListener(userPath, 'mousemove', function(event) {
-  //         infowindow.setPosition(event.latLng);
         });
         google.maps.event.addListener(userPath, 'mouseout', function(event) {
            userPath.setOptions({ strokeColor: '#CC3333'});
-  //         infowindow.close();
         });
 
 
+
       }
+
+
+      $(document).ready(function(){
+        console.log('ready');
+        $.getJSON('usa_trade_data.js', null, function(data){
+           console.log('got JSON');
+        });
+        //$('#data').load('usa_trade_data.js');
+        console.log('after getJSON');
+      });
+
+
     </script>
 
 	<!-- Google Analytics -->
@@ -85,6 +87,8 @@
   </head>
   <body onload="initialize()">
 
+
+<div id="data"></div>
 
 <!-- stuff goes here -->
 <div id="map_canvas" style="width:100%; height:100%"></div>
