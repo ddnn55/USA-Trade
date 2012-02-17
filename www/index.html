@@ -7,11 +7,17 @@
     <title>US Imports and Exports, 1985-2011</title>
     <style type="text/css">
       html { height: 100% }
-      body { height: 100%; margin: 0; padding: 0 }
-      .overlay { /*background-color: white; opacity:0.8; filter:alpha(opacity=80);*/ }
-      #timeline { height: 3em; width: 100%; z-index: 1000; position: fixed; top: 0px; left: 0px;}
-      #slider { width: 20em; }
-      #sidebar { width: 15em; z-index:1001; position:fixed; top:3em; bottom:0px; right:0px; }
+      body { height: 100%; margin: 0; padding: 0; overflow:hidden; }
+      .overlay { background-color: #333; color: #ddd; opacity:0.8; filter:alpha(opacity=80); }
+      .import_dollars { color: #ff6666; }
+      .export_dollars { color: #6f6; }
+      #header { width: 100%; z-index: 1000; position: fixed; top: 0px; left: 0px; padding: 0.5em; text-align: center;}
+      #header div { display:inline; }
+      #title { font-size: 2em;}
+      #timeline_container { text-align:center; }
+      #timeline { display:inline; width: 50em; z-index: 1000; position: fixed; bottom: 3em; margin: 0 auto; padding: 0.5em;}
+      #slider { width: 44em; margin: 0.5em;}
+      /*#sidebar { width: 15em; z-index:1001; position:fixed; top:3em; bottom:0px; right:0px; }*/
       #map_canvas { height: * }
     </style> 
     <link type="text/css" href="css/start/jquery-ui-1.8.17.custom.css" rel="Stylesheet" />
@@ -23,13 +29,18 @@
     <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
     <script type="text/javascript" src="js/jquery-ui-1.8.17.custom.min.js"></script>
     <script type="text/javascript">
-      USA_SPACING = 7.0;
+      USA_SPACING_X = 24.0;
+      USA_SPACING_Y = 7.0;
       THOUSAND_DOLLARS_PER_PIXEL_WIDTH = 100000.0;
-      USA_COORDINATE = new google.maps.LatLng(39.095963,-97.207031); // USA
+      USA_COORDINATE = new google.maps.LatLng(39.095963,-102.207031); // USA
 
       var map;
       var trade_flows = {};
       var years;
+      var countries = {};
+      var tips = {};
+
+      var current_year;
 
       function createTradeFlows(country_name, country) {
         //var USA_COORDINATE = new google.maps.LatLng(39.095963,-97.207031); // USA
@@ -39,9 +50,24 @@
         var reverseHeading = google.maps.geometry.spherical.computeHeading(toCoordinate, USA_COORDINATE);
         heading        = heading * Math.PI / 180.0;
         reverseHeading = reverseHeading * Math.PI / 180.0;
-        var usaRoomCoordinate = new google.maps.LatLng(USA_COORDINATE.lat() +     USA_SPACING * Math.cos(heading),
-                                                       USA_COORDINATE.lng() + 2 * USA_SPACING * Math.sin(heading));
+        var usaRoomCoordinate = new google.maps.LatLng(USA_COORDINATE.lat() + USA_SPACING_Y * Math.cos(heading),
+                                                       USA_COORDINATE.lng() + USA_SPACING_X * Math.sin(heading));
       
+        var fromLeftHeading  = heading + Math.PI / 2.0;
+        var fromRightHeading  = heading - Math.PI / 2.0;
+        var toLeftHeading   = reverseHeading + Math.PI / 2.0;
+        var toRightHeading   = reverseHeading - Math.PI / 2.0;
+
+        countries[country_name] = {
+           'export': {
+              'fromLeftHeading': fromLeftHeading,
+              'toRightHeading':  toRightHeading 
+           },
+           'import': {
+              'fromLeftHeading': toLeftHeading,
+              'toRightHeading':  fromRightHeading 
+           }
+        };
 
         var exportCoordinates = [ usaRoomCoordinate, toCoordinate, toCoordinate, usaRoomCoordinate ];
         var importCoordinates = [ toCoordinate, usaRoomCoordinate, usaRoomCoordinate, toCoordinate ];
@@ -59,7 +85,7 @@
 
            google.maps.event.addListener(flow, 'mouseover', function(event) {
               flow.setOptions({ fillColor: hover_color});
-              tooltip.show(country_name, 200);
+              tooltip.show(tips[current_year][country_name][type], 200);
            });
            //google.maps.event.addListener(flow, 'mousemove', function(event) {
            //});
@@ -71,38 +97,23 @@
         }
 
         trade_flows[country_name] = {};
-        createPath('export', country_name, exportCoordinates, '#333333', '#666666');
-        createPath('import', country_name, importCoordinates, '#CC3333', '#FF6666');
+        createPath('export', country_name, exportCoordinates, '#555', '#333');
+        createPath('import', country_name, importCoordinates, '#C55', '#C33');
       }
 
       function updateFlow(type, country, trade_volume) {
-         //console.log(trade_flows[country][type]);
-         var fromCoordinate = new google.maps.LatLng(
-            trade_flows[country][type].getPath().getAt(0).lat(),
-            trade_flows[country][type].getPath().getAt(0).lng()
-         );
-         var toCoordinate   = new google.maps.LatLng(
-            trade_flows[country][type].getPath().getAt(1).lat(),
-            trade_flows[country][type].getPath().getAt(1).lng()
-         );
- 
-         var heading        = google.maps.geometry.spherical.computeHeading(fromCoordinate, toCoordinate);
-         var reverseHeading = google.maps.geometry.spherical.computeHeading(toCoordinate, fromCoordinate);
-         heading        = heading * Math.PI / 180.0;
-         reverseHeading = reverseHeading * Math.PI / 180.0;
+         fromCoordinate = trade_flows[country][type].getPath().getAt(0);
+         toCoordinate   = trade_flows[country][type].getPath().getAt(1);
 
+         fromLeftHeading = countries[country][type]['fromLeftHeading'];
+         toRightHeading  = countries[country][type]['toRightHeading'];
 
-         var fromLeftHeading  = heading - Math.PI / 2.0;
-         //var fromRightHeading = heading + Math.PI / 2.0;
-         //var toLeftHeading    = reverseHeading - Math.PI / 2.0;
-         var toRightHeading   = reverseHeading + Math.PI / 2.0;
-    
          // TODO do nice freaky arrow heads
  
-         var fromLeftCoord = new google.maps.LatLng(fromCoordinate.lat() + trade_volume * Math.cos(fromLeftHeading) / THOUSAND_DOLLARS_PER_PIXEL_WIDTH,
-                                                    fromCoordinate.lng() + trade_volume * Math.sin(fromLeftHeading) / THOUSAND_DOLLARS_PER_PIXEL_WIDTH);
-         var toRightCoord  = new google.maps.LatLng(toCoordinate.lat()   + trade_volume * Math.cos(toRightHeading) / THOUSAND_DOLLARS_PER_PIXEL_WIDTH,
-                                                    toCoordinate.lng()   + trade_volume * Math.sin(toRightHeading) / THOUSAND_DOLLARS_PER_PIXEL_WIDTH);
+         fromLeftCoord = new google.maps.LatLng(fromCoordinate.lat() + trade_volume * Math.cos(fromLeftHeading) / THOUSAND_DOLLARS_PER_PIXEL_WIDTH,
+                                                fromCoordinate.lng() + trade_volume * Math.sin(fromLeftHeading) / THOUSAND_DOLLARS_PER_PIXEL_WIDTH);
+         toRightCoord  = new google.maps.LatLng(toCoordinate.lat()   + trade_volume * Math.cos(toRightHeading) / THOUSAND_DOLLARS_PER_PIXEL_WIDTH,
+                                                toCoordinate.lng()   + trade_volume * Math.sin(toRightHeading) / THOUSAND_DOLLARS_PER_PIXEL_WIDTH);
 
          // update toRightCoord
          trade_flows[country][type].getPath().setAt(2, toRightCoord);
@@ -120,6 +131,7 @@
       }
 
       function setYear(year) {
+         current_year = year;
          $.each(years[year], function(country, stats) {
             if(country in trade_flows) {
                updateFlows(country, stats);
@@ -128,11 +140,23 @@
       }
 
 
+      function formatMillionsOfDollars(millions, css_class) {
+         dollars = Math.floor(millions) * 1000000;
+         dollars = dollars.toString();
+         dollars_with_commas = "";
+         for(c = dollars.length-1; c >= 0; c--) {
+            dollars_with_commas = dollars[c] + dollars_with_commas;
+            if((dollars.length - c) % 3 == 0 && c != 0)
+               dollars_with_commas = ',' + dollars_with_commas;
+         }
+         return '<span class="'+css_class+'">$'+dollars_with_commas+'</span>';
+      }
+
       function initialize() {
          var myOptions = {
-            center: new google.maps.LatLng(0, 150.644),
+            center: USA_COORDINATE,
             disableDefaultUI: true,
-            zoom: 2,
+            zoom: 3,
             mapTypeId: google.maps.MapTypeId.ROADMAP
          };
          map = new google.maps.Map(document.getElementById("map_canvas"),
@@ -171,13 +195,23 @@
                         high = year;
                      if(year < low)
                         low = year;
+
+                     tips[year] = {};
+                     $.each(countries, function(country_name, stats) {
+                        tips[year][country_name] = {};
+                        import_volume = formatMillionsOfDollars(stats['imports_year_total'], 'import_dollars');
+                        export_volume = formatMillionsOfDollars(stats['exports_year_total'], 'export_dollars');
+                        tips[year][country_name]['import'] = "Spent "+import_volume+" in "+country_name+" in "+year;
+                        tips[year][country_name]['export'] = "Earned "+export_volume+" in "+country_name+" in "+year;
+                     });
+
                   });
 
                   //console.log(low);
                   //console.log(high);
 
                   $( "#slider" ).slider({
-                     value:low,
+                     value:high,
                      min: low,
                      max: high,
                      step: 1,
@@ -194,7 +228,10 @@
             //console.log(trade_paths);
 
 
-            setYear(low);
+            setYear(high);
+
+            console.log('tips:');
+            console.log(tips);
 
 
          });
@@ -233,11 +270,18 @@
 
 
 
-<div id="timeline" class="overlay">
-   <input type="text" id="year" style="border:0; color:#f6931f; font-weight:bold;" />
-   <div id="slider"></div>
+<div id="header" class="overlay">
+   <input type="text" id="year" style="border:0; color:#f6931f; font-weight:bold;display:none;" />
+   <div id="title">U.S. Imports and Exports in Nominal Dollars, 1985-2011</div>
 </div>
 <!--<div id="sidebar" class="overlay"></div>-->
+
+
+<div id="timeline_container">
+   <div id="timeline" class="overlay">
+      <div id="slider"></div>
+   </div>
+</div>
 
 <div id="map_canvas" style="width:100%; height:100%;"></div>
 
