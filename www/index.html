@@ -17,21 +17,33 @@
     <link type="text/css" href="css/start/jquery-ui-1.8.17.custom.css" rel="Stylesheet" />
     <link type="text/css" href="css/tooltip.css" rel="Stylesheet" />
     <script type="text/javascript"
-      src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCkETvZyOg_-XCWnwlTRFKbnO-sMlGOqvk&sensor=false">
+      src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCkETvZyOg_-XCWnwlTRFKbnO-sMlGOqvk&sensor=false&libraries=geometry">
     </script>
     <script type="text/javascript" src="js/tooltip.js"></script>
     <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
     <script type="text/javascript" src="js/jquery-ui-1.8.17.custom.min.js"></script>
     <script type="text/javascript">
+      USA_SPACING = 7.0;
+
       var map;
       var trade_paths = {};
       var years;
 
       function createTradeLine(country_name, country) {
-        var fromCoordinate = new google.maps.LatLng(39.095963,-97.207031); // USA
+        var usaCoordinate = new google.maps.LatLng(39.095963,-97.207031); // USA
         var   toCoordinate = new google.maps.LatLng(country['latLng'][0], country['latLng'][1]);
 
-        var coordinates = [ fromCoordinate, toCoordinate ];
+        //console.log(usaCoordinate);
+        // TODO fix this for polar coordinates and then we can use it.
+        var heading = google.maps.geometry.spherical.computeHeading(usaCoordinate, toCoordinate);
+        heading = heading * Math.PI / 180.0;
+        var usaRoomCoordinate = new google.maps.LatLng(
+           usaCoordinate.lat() + USA_SPACING * Math.cos(heading),
+           usaCoordinate.lng() + 2 * USA_SPACING * Math.sin(heading)
+        );
+        //console.log(usaRoomCoordinate);
+           
+        var coordinates = [ usaRoomCoordinate, toCoordinate ];
 
         var userPath = new google.maps.Polyline({
            path: coordinates,
@@ -85,13 +97,14 @@
             $.each(data, function(key, value) {
                if(key == 'countries') {
                   geocodes = value;
+                  // TODO order by length and draw longer lines first, so they don't cover up smaller lines
                   $.each(value, function(country_name, country) {
                      if( country_name != "North America" &&
                          country_name != "Europe" &&
                          country_name != "NICS" &&
                          country_name != "OPEC" &&
                          country_name != "Africa" ) {
-                        console.log(country_name);
+                        //console.log(country_name);
                         trade_paths[country_name] = createTradeLine(country_name, country);
                      }
                   });
@@ -112,8 +125,8 @@
                         low = year;
                   });
 
-                  console.log(low);
-                  console.log(high);
+                  //console.log(low);
+                  //console.log(high);
 
                   $( "#slider" ).slider({
                      value:low,
@@ -130,7 +143,7 @@
                }
             });
 
-            console.log(trade_paths);
+            //console.log(trade_paths);
 
 
             setYear(low);
