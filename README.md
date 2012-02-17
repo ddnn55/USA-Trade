@@ -6,7 +6,11 @@ Data from http://www.census.gov/foreign-trade/statistics/country/
 
 Usage
 -----
-Convert US Census trade CSV to JSON:
+First, you need the geopy Python module. Install it like so (requires http://pypi.python.org/pypi/virtualenv):
+
+    source CreatePythonVirtualEnv.sh
+
+Convert US Census trade CSV to JSON, and geocode countries with Google (slow because of geocode API rate limit):
 
     ./CensusCSV2JSON.py usa_trade_data/COUNTRY-Table\ 1.csv > www/usa_trade_data.js
 

@@ -60,12 +60,12 @@
 
 
       $(document).ready(function(){
-        console.log('ready');
-        $.getJSON('usa_trade_data.js', null, function(data){
-           console.log('got JSON');
-        });
-        //$('#data').load('usa_trade_data.js');
-        console.log('after getJSON');
+         $.getJSON('usa_trade_data.js', null, function(data){
+            console.log(data);
+            $.each(data, function(year, countries) {
+               
+            });
+         });
       });
 
 
