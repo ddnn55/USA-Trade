@@ -86,7 +86,11 @@
                if(key == 'countries') {
                   geocodes = value;
                   $.each(value, function(country_name, country) {
-                     if( ! (country_name in ["North America", "Europe"]) ) {
+                     if( country_name != "North America" &&
+                         country_name != "Europe" &&
+                         country_name != "NICS" &&
+                         country_name != "OPEC" &&
+                         country_name != "Africa" ) {
                         console.log(country_name);
                         trade_paths[country_name] = createTradeLine(country_name, country);
                      }
