@@ -8,15 +8,17 @@
     <style type="text/css">
       html { height: 100% }
       body { height: 100%; margin: 0; padding: 0; overflow:hidden; }
-      .overlay { background-color: #333; color: #ddd; opacity:0.8; filter:alpha(opacity=80); }
+      .overlay { background-color: #333; color: #eee; opacity:0.8; filter:alpha(opacity=80); }
       .import_dollars { color: #ff6666; }
       .export_dollars { color: #6f6; }
       #header { width: 100%; z-index: 1000; position: fixed; top: 0px; left: 0px; padding: 0.5em; text-align: center;}
       #header div { display:inline; }
       #title { font-size: 2em;}
       #timeline_container { text-align:center; }
-      #timeline { display:inline; width: 50em; z-index: 1000; position: fixed; bottom: 3em; margin: 0 auto; padding: 0.5em;}
-      #slider { width: 44em; margin: 0.5em;}
+      #timeline { text-align: center; display:inline; /*width: 84em;*/ z-index: 1000; position: fixed; bottom: 3em; margin: 0 auto; padding: 0.5em 1.5em;}
+      #slider { width: 74em; margin: 0.5em;}
+      #slider_ticks { display: block; }
+      #slider_ticks div { display: inline; position:absolute; }
       /*#sidebar { width: 15em; z-index:1001; position:fixed; top:3em; bottom:0px; right:0px; }*/
       #map_canvas { height: * }
     </style> 
@@ -201,8 +203,8 @@
                         tips[year][country_name] = {};
                         import_volume = formatMillionsOfDollars(stats['imports_year_total'], 'import_dollars');
                         export_volume = formatMillionsOfDollars(stats['exports_year_total'], 'export_dollars');
-                        tips[year][country_name]['import'] = "Spent "+import_volume+" in "+country_name+" in "+year;
-                        tips[year][country_name]['export'] = "Earned "+export_volume+" in "+country_name+" in "+year;
+                        tips[year][country_name]['import'] = import_volume+" spent in "+country_name+" in "+year;
+                        tips[year][country_name]['export'] = export_volume+" earned in "+country_name+" in "+year;
                      });
 
                   });
@@ -222,10 +224,28 @@
                   });
                   $( "#year" ).val( "$" + $( "#slider" ).slider( "value" ) );
 
+
+                  $('#low').html(low);
+                  $('#high').html(high);
+            
+                  slider_width = $('#slider').width();
+                  console.log(slider_width);
+                  for(y = low; y <= high; y += 1) {
+                     fraction = (y - low) / (high - low);
+                     $('#slider_ticks').append('<div id="tick'+y+'">'+y+'</div>');
+                     $('#tick'+y).css({
+                        left: (slider_width * (fraction))+10 + "px"
+                     });
+                  }
+
+
+
                }
             });
 
             //console.log(trade_paths);
+
+
 
 
             setYear(high);
@@ -272,13 +292,14 @@
 
 <div id="header" class="overlay">
    <input type="text" id="year" style="border:0; color:#f6931f; font-weight:bold;display:none;" />
-   <div id="title">U.S. Imports and Exports in Nominal Dollars, 1985-2011</div>
+   <div id="title">U.S. Imports and Exports in Nominal Dollars, <span id="low">&nbsp;</span>-<span id="high">&nbsp;</span></div>
 </div>
 <!--<div id="sidebar" class="overlay"></div>-->
 
 
 <div id="timeline_container">
    <div id="timeline" class="overlay">
+      <div id="slider_ticks">&nbsp;</div>
       <div id="slider"></div>
    </div>
 </div>
