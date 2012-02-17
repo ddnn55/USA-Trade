@@ -45,6 +45,38 @@
       var tips = {};
 
       var current_year;
+      var last_hash = null;
+
+
+      initial_year = null;
+      initial_latlng = null;
+      initial_zoom = null;
+      initial_parts = window.location.hash.split('/');
+      if(initial_parts.length == 4)
+      {
+         initial_year = initial_parts[1];
+         initial_latlng = new google.maps.LatLng(initial_parts[2].split(',')[0], initial_parts[2].split(',')[1]);
+         initial_zoom = parseInt(initial_parts[3]);
+      }
+
+
+      function setState(hash) {
+         parts = hash.split('/');
+         if(parts.length == 4)
+         {
+            console.log('doin stuff');
+            console.log(parts);
+            year = parts[1];
+            latlng = new google.maps.LatLng(parts[2].split(',')[0], parts[2].split(',')[1]);
+            zoom = parseInt(parts[3]);
+
+            map.setZoom(zoom);
+            map.setCenter(latlng);
+            setYear(year);
+            $('#slider').slider('value', year);
+            console.log('did stuff');
+         }
+      }
 
       function createTradeFlows(country_name, country) {
         //var USA_COORDINATE = new google.maps.LatLng(39.095963,-97.207031); // USA
@@ -141,6 +173,8 @@
                updateFlows(country, stats);
             }
          });
+         $('#slider_ticks div').removeClass('current_tick');
+         $('#slider_ticks div').addClass('not_current_tick');
          $('#tick'+year).addClass('current_tick');
       }
 
@@ -157,15 +191,32 @@
          return '<span class="'+css_class+'">$'+dollars_with_commas+'</span>';
       }
 
+      function updateHash() {
+         if(last_hash != window.location.hash) {
+            console.log("not last hash");
+            last_hash = window.location.hash;
+            setState(window.location.hash);
+         }
+         else {
+            window.location.hash = "/" + current_year + "/" + map.getCenter().toUrlValue() + "/" + map.getZoom();
+            last_hash = window.location.hash;
+         }
+      }
+
       function initialize() {
          var myOptions = {
-            center: USA_COORDINATE,
+            //center: USA_COORDINATE,
+            center: initial_latlng ? initial_latlng : USA_COORDINATE,
             disableDefaultUI: true,
-            zoom: 3,
+            zoom: initial_zoom ? initial_zoom : 3,
             mapTypeId: google.maps.MapTypeId.ROADMAP
          };
-         map = new google.maps.Map(document.getElementById("map_canvas"),
-            myOptions);
+         map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+         //google.maps.event.addListener(map, 'bounds_changed', function() {
+         //   window.location.hash = "/" + map.getCenter().toUrlValue();
+         //});
+
+         var int=self.setInterval("updateHash()", 1000);
 
          $.getJSON('usa_trade_data.js', null, function(data) {
             console.log(data);
@@ -206,8 +257,8 @@
                         tips[year][country_name] = {};
                         import_volume = formatMillionsOfDollars(stats['imports_year_total'], 'import_dollars');
                         export_volume = formatMillionsOfDollars(stats['exports_year_total'], 'export_dollars');
-                        tips[year][country_name]['import'] = import_volume+" spent in "+country_name+" in "+year;
-                        tips[year][country_name]['export'] = export_volume+" earned in "+country_name+" in "+year;
+                        tips[year][country_name]['import'] = ''+import_volume+" imported from "+country_name+" in "+year;
+                        tips[year][country_name]['export'] = '' + export_volume+" exported to "+country_name+" in "+year;
                      });
 
                   });
@@ -253,7 +304,8 @@
 
 
 
-            setYear(high);
+            setYear(initial_year ? initial_year : high);
+            //setState(window.location.hash);
 
             console.log('tips:');
             console.log(tips);
