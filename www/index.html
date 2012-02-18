@@ -13,8 +13,8 @@
 
       .overlay { background-color: #333; color: white; opacity:0.8; filter:alpha(opacity=80); }
 
-      #header { width: 100%; z-index: 1000; position: fixed; top: 0px; left: 0px; padding: 0.5em; text-align: center;}
-      /*#header div { display:inline; }*/
+      #header_container { width: 100%; z-index: 1000; position: fixed; top: 0px; left: 0px; padding: 0.5em; text-align: center; padding:0;}
+      #header { display:inline-block; padding:0.5em 1em;}
       #title { font-size: 2em;}
       #nominal_dollars { color:white; text-decoration: none; border-bottom: 1px dashed #ccc; }
 
@@ -65,7 +65,7 @@
 
 
 
-
+<div id="header_container">
 <div id="header" class="overlay">
    <input type="text" id="year" style="border:0; color:#f6931f; font-weight:bold;display:none;" />
    <div id="title">U.S. 
@@ -74,7 +74,8 @@
       <div id="exports" class="key_color"></div>
       Exports in <a id="nominal_dollars" href="http://en.wikipedia.org/wiki/Real_versus_nominal_value_(economics)">Nominal Dollars</a>, <span id="low">&nbsp;</span>-<span id="high">&nbsp;</span></div>
 </div>
-<!--<div id="sidebar" class="overlay"></div>-->
+</div>
+
 
 
 <div id="timeline_container">

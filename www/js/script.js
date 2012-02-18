@@ -78,7 +78,9 @@
               path: coords,
               fillColor: color,
               fillOpacity: 0.8,
-              strokeWeight: 0,
+              strokeWeight: 0.1,
+              strokeColor: color,
+              strokeOpacity: 0.8,
               geodesic: true
            });
 
@@ -172,7 +174,9 @@
          var myOptions = {
             //center: USA_COORDINATE,
             center: initial_latlng ? initial_latlng : USA_COORDINATE,
-            disableDefaultUI: true,
+            //disableDefaultUI: true,
+            streetViewControl: false,
+            mapTypeControl: false,
             zoom: initial_zoom ? initial_zoom : 3,
             mapTypeId: google.maps.MapTypeId.ROADMAP
          };
