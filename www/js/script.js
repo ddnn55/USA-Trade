@@ -1,7 +1,7 @@
       USA_SPACING_X = 24.0;
       USA_SPACING_Y = 7.0;
       THOUSAND_DOLLARS_PER_PIXEL_WIDTH = 100000.0;
-      USA_COORDINATE = new google.maps.LatLng(39.095963,-102.207031); // USA
+      USA_COORDINATE = new google.maps.LatLng(39.095963,-99.207031); // USA
 
       var map;
       var trade_flows = {};
