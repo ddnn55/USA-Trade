@@ -248,8 +248,15 @@
                   $( "#year" ).val( "$" + $( "#slider" ).slider( "value" ) );
 
 
+                  // fill in dynamic title content
                   $('#low').html(low);
                   $('#high').html(high);
+                  $('#nominal_dollars').mouseover(function() {
+                     tooltip.show('Nominal dollars are <b>not</b> adjusted for inflation.', 200, 'se');
+                  });
+                  $('#nominal_dollars').mouseout(function() {
+                     tooltip.hide();
+                  });
             
                   slider_width = $('#slider').width();
                   console.log(slider_width);

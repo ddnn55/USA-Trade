@@ -1,3 +1,14 @@
+function viewport()
+{
+var e = window, a = 'inner';
+if ( !( 'innerWidth' in window ) )
+{
+a = 'client';
+e = document.documentElement || document.body;
+}
+return { width : e[ a+'Width' ] , height : e[ a+'Height' ] }
+}
+
 var tooltip=function(){
 	var id = 'tt';
 	var top = 3;
@@ -10,7 +21,7 @@ var tooltip=function(){
 	var tt,t,c,b,h;
 	var ie = document.all ? true : false;
 	return{
-		show:function(v,w){
+		show:function(v,w, direction){
 			if(tt == null){
 				tt = document.createElement('div');
 				tt.setAttribute('id',id);
@@ -39,7 +50,7 @@ var tooltip=function(){
 				b.style.display = 'block';
 			}
 			if(tt.offsetWidth > maxw){tt.style.width = maxw + 'px'}
-			h = parseInt(tt.offsetHeight) + top;
+			h = direction == 'se' ? -top : parseInt(tt.offsetHeight) + top;
 			clearInterval(tt.timer);
 			tt.timer = setInterval(function(){tooltip.fade(1)},timer);
 		},
@@ -47,7 +58,8 @@ var tooltip=function(){
 			var u = ie ? event.clientY + document.documentElement.scrollTop : e.pageY;
 			var l = ie ? event.clientX + document.documentElement.scrollLeft : e.pageX;
 			tt.style.top = (u - h) + 'px';
-			tt.style.left = (l + left) + 'px';
+                        right_excess = Math.max(0, l+left+parseInt(tt.style.width)-viewport().width); // only tested with non-scrolling content
+			tt.style.left = (l + left - right_excess) + 'px';
 		},
 		fade:function(d){
 			var a = alpha;
