@@ -20,6 +20,10 @@ Preview locally:
 
 Future
 ------
+
+* Add play/pause button
+* Add monthly data
+
 Change name from "USA Trade" to "International Trade" and add more data:
 
 * Top imports and exports by origin and destination country: http://www.wto.org/english/res_e/statis_e/statis_e.htm
