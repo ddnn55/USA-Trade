@@ -168,17 +168,17 @@ function formatMillionsOfDollars(millions, css_class) {
 }
 
 function updateHash() {
-   if(last_hash == '')
-      setYear(current_year); // FIXME hack to fix dead start =/
-   if(last_hash != window.location.hash) {
-      //console.log("not last hash");
-      last_hash = window.location.hash;
-      setState(window.location.hash);
-   }
-   else {
-      window.location.hash = "/" + current_year + "/" + map.getCenter().toUrlValue() + "/" + map.getZoom();
-      last_hash = window.location.hash;
-   }
+//   if(last_hash == '')
+//      setYear(current_year); // FIXME hack to fix dead start =/
+//   if(last_hash != window.location.hash) {
+//      //console.log("not last hash");
+//      last_hash = window.location.hash;
+//      setState(window.location.hash);
+//   }
+//   else {
+//      window.location.hash = "/" + current_year + "/" + map.getCenter().toUrlValue() + "/" + map.getZoom();
+//      last_hash = window.location.hash;
+//   }
 }
 
 function initialize() {
@@ -196,7 +196,7 @@ function initialize() {
    //   window.location.hash = "/" + map.getCenter().toUrlValue();
    //});
 
-   var int=self.setInterval("updateHash()", 1000);
+   //var int=self.setInterval("updateHash()", 1000);
 
    $.getJSON('usa_trade_data.js', null, function(data) {
       //console.log(data);
@@ -340,7 +340,7 @@ function initialize() {
 
       //console.log(trade_paths);
 
-
+      setYear(current_year);
 
 
 
