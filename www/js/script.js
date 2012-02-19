@@ -280,7 +280,12 @@
             //console.log(trade_paths);
 
 
-
+            function updateMapPos() {
+               console.log($('#timeline_container').height());
+               map_height = viewport().height - $('#header').height() - $('#timeline_container').height();
+               $('#map_canvas').css({'height': map_height+'px', 'top': $('#header').height()+'px'});
+            }
+            updateMapPos();
 
             setYear(initial_year ? initial_year : high);
             //setState(window.location.hash);
@@ -288,10 +293,8 @@
             console.log('tips:');
             console.log(tips);
             console.log("hellooooooo");
-            $(window).resize(function(){
-               map_height = viewport().height - $('#header').height() - $('#timeline_container').height();
-               $('#map_canvas').css('height', map_height+'px');
-            });
+            $(window).resize(updateMapPos);
+
 
          });
 
