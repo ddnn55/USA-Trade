@@ -247,65 +247,76 @@ return { width : e[ a+'Width' ] , height : e[ a+'Height' ] }
                   //console.log(low);
                   //console.log(high);
 
-                  $( "#slider" ).slider({
-                     value:high,
-                     min: low,
-                     max: high,
-                     step: 1,
-                     slide: function( event, ui ) {
-                        $('#tick'+current_year).removeClass('current_tick');
-                        $('#tick'+current_year).addClass('not_current_tick');
-                        setYear(ui.value);
-                        $( "#year" ).val( "$" + ui.value );
-                     }
-                  });
-                  handle_height_increase = 1;
-                  $('.ui-slider-handle').css({top:'-2em', height:'3em', 'z-index':'1003'});
-                  $( "#year" ).val( "$" + $( "#slider" ).slider( "value" ) );
+
 
 
                   // fill in dynamic title content
                   $('#low').html(low);
                   $('#high').html(high);
                   $('#nominal_dollars').mouseover(function() {
-                     tooltip.show('Nominal dollars are <b>not</b> adjusted for inflation.', 200, 'se');
+                     tooltip.show('<b>Nominal dollars</b> are <b>not</b> adjusted for inflation.', 200, 'se');
                   });
                   $('#nominal_dollars').mouseout(function() {
                      tooltip.hide();
                   });
-            
-                  slider_width = $('#slider').width();
-                  console.log(slider_width);
-                  for(y = low; y <= high; y += 1) {
-                     fraction = (y - low) / (high - low);
-                     $('#slider_ticks').append('<div class="not_current_tick" id="tick'+y+'">'+y+'</div>');
-                     $('#tick'+y).css({
-                        left: (slider_width * (fraction))+10 + "px"
+           
+
+
+
+                  function createTimeline() {
+                     // create slider ...
+                     $( "#slider" ).slider({
+                        value:high,
+                        min: low,
+                        max: high,
+                        step: 1,
+                        slide: function( event, ui ) {
+                           $('#tick'+current_year).removeClass('current_tick');
+                           $('#tick'+current_year).addClass('not_current_tick');
+                           setYear(ui.value);
+                           $( "#year" ).val( "$" + ui.value );
+                        }
                      });
+                     handle_height_increase = 1;
+                     $('.ui-slider-handle').css({top:'-2em', height:'3em', 'z-index':'1003'});
+                     $( "#year" ).val( "$" + $( "#slider" ).slider( "value" ) );
+      
+                     // ... and year labels (ticks)
+                     slider_width = $('#slider').width();
+                     slider_left = $('#slider').offset().left;
+                     console.log(slider_width);
+                     for(y = low; y <= high; y += 1) {
+                        fraction = (y - low) / (high - low);
+                        $('#slider_ticks').append('<div class="not_current_tick" id="tick'+y+'">'+y+'</div>');
+                        $('#tick'+y).css({
+                           left: slider_left + (slider_width * fraction) - 13 + "px"
+                        });
+                     }
                   }
+                  createTimeline();
 
 
+                  function updateUI() {
+                     map_height = viewport().height - $('#header').height() - $('#timeline_container').height();
+                     $('#map_canvas').css({'height': map_height+'px', 'top': $('#header').height()+'px'});
+                     $('#slider').css('width', (viewport().width-80)+'px');
+                     createTimeline();
+                  }
+                  updateUI();
 
-               }
+                  setYear(initial_year ? initial_year : high);
+                  //setState(window.location.hash);
+
+                  $(window).resize(updateUI);
+
+
+               } // end init trade
             });
 
             //console.log(trade_paths);
 
 
-            function updateMapPos() {
-               console.log($('#timeline_container').height());
-               map_height = viewport().height - $('#header').height() - $('#timeline_container').height();
-               $('#map_canvas').css({'height': map_height+'px', 'top': $('#header').height()+'px'});
-            }
-            updateMapPos();
 
-            setYear(initial_year ? initial_year : high);
-            //setState(window.location.hash);
-
-            console.log('tips:');
-            console.log(tips);
-            console.log("hellooooooo");
-            $(window).resize(updateMapPos);
 
 
          });
