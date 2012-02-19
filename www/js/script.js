@@ -188,7 +188,7 @@ function initialize() {
       //disableDefaultUI: true,
       streetViewControl: false,
       mapTypeControl: false,
-      zoom: initial_zoom ? initial_zoom : 3,
+      zoom: initial_zoom ? initial_zoom : 2,
       mapTypeId: google.maps.MapTypeId.ROADMAP
    };
    map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
