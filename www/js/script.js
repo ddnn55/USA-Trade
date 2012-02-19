@@ -152,9 +152,9 @@ return { width : e[ a+'Width' ] , height : e[ a+'Height' ] }
                updateFlows(country, stats);
             }
          });
-         $('#slider_ticks div').removeClass('current_tick');
-         $('#slider_ticks div').addClass('not_current_tick');
-         $('#tick'+year).addClass('current_tick');
+         //$('#slider_ticks div').removeClass('current_tick');
+         //$('#slider_ticks div').addClass('not_current_tick');
+         //$('#tick'+year).addClass('current_tick');
       }
 
 
@@ -261,21 +261,28 @@ return { width : e[ a+'Width' ] , height : e[ a+'Height' ] }
                   });
            
 
+                  function timelineSetYear(new_year) {
+                     //console.log('timeline set year ' + new_year);
+                     $('#tick'+current_year).removeClass('current_tick');
+                     $('#tick'+current_year).addClass('not_current_tick');
+                     //setYear(new_year);
+                     $( "#year" ).val( "$" + new_year );
+                     $('#slider').slider('option', 'value', new_year);
+                     $('#tick'+new_year).addClass('current_tick');
+                  }
 
 
-                  function createTimeline() {
+                  function createTimeline(width) {
+                     // clear previous timeline if any
+                     $('#timeline').html('<div id="slider_ticks">&nbsp;</div><div id="slider"></div>');
                      // create slider ...
+                     $('#slider').css('width', width+'px');
                      $( "#slider" ).slider({
                         value:high,
                         min: low,
                         max: high,
                         step: 1,
-                        slide: function( event, ui ) {
-                           $('#tick'+current_year).removeClass('current_tick');
-                           $('#tick'+current_year).addClass('not_current_tick');
-                           setYear(ui.value);
-                           $( "#year" ).val( "$" + ui.value );
-                        }
+                        slide: function(event, ui) { timelineSetYear(ui.value); setYear(ui.value); }
                      });
                      handle_height_increase = 1;
                      $('.ui-slider-handle').css({top:'-2em', height:'3em', 'z-index':'1003'});
@@ -292,19 +299,21 @@ return { width : e[ a+'Width' ] , height : e[ a+'Height' ] }
                            left: slider_left + (slider_width * fraction) - 13 + "px"
                         });
                      }
+
                   }
-                  createTimeline();
+                  //createTimeline();
 
 
                   function updateUI() {
                      map_height = viewport().height - $('#header').height() - $('#timeline_container').height();
                      $('#map_canvas').css({'height': map_height+'px', 'top': $('#header').height()+'px'});
-                     $('#slider').css('width', (viewport().width-80)+'px');
-                     createTimeline();
+                     createTimeline(viewport().width-80);
+                     timelineSetYear(current_year);
                   }
-                  updateUI();
 
                   setYear(initial_year ? initial_year : high);
+                  updateUI();
+                  timelineSetYear(current_year);
                   //setState(window.location.hash);
 
                   $(window).resize(updateUI);
