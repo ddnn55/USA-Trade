@@ -21,6 +21,7 @@ Preview locally:
 Future
 ------
 
+* JSON is a big slow download. Store data more efficiently in JSON (e.g. don't repeat country names a million times)
 * Add play/pause button
 * Add monthly data
 

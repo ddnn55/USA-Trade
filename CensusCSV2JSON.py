@@ -48,12 +48,13 @@ def geocode(country_name):
       place  = geocode_result[0]
       latLng = geocode_result[1]
       trade_data['countries'][country_name] = {'latLng': latLng}
-      #sys.stderr.write("Geocoded " + country_name + "\n")
+      sys.stderr.write("Geocoded " + country_name + " with Google\n")
       return True
    except (ValueError, geopy.geocoders.google.GQueryError):
       try:
          latLng = manual_geocodes[country_name]
          trade_data['countries'][country_name] = {'latLng': [str(latLng[0]), str(latLng[1])]}
+         sys.stderr.write("Used manual geocode for " + country_name + " (Google couldn't geocode)\n")
             
          return True
       except KeyError:
@@ -65,6 +66,7 @@ def geocode(country_name):
    #   sys.stderr.write(country_name + ": " + str(e) + "\n")
    #   not_geocodable.append(country_name)
    except geopy.geocoders.google.GTooManyQueriesError:
+      sys.stderr.write("Exceeded Google query rate limit, sleeping for 1 second\n")
       time.sleep(1)
       return geocode(country_name)
 
@@ -89,9 +91,9 @@ for parts in csv:
          trade_data['trade'][year][country_name] = {}
      
  
-      trade_data['trade'][year][country_name]['imports_by_month']   = parts[3:15]
+      #trade_data['trade'][year][country_name]['imports_by_month']   = parts[3:15]
       trade_data['trade'][year][country_name]['imports_year_total'] = parts[15]
-      trade_data['trade'][year][country_name]['exports_by_month']   = parts[16:28]
+      #trade_data['trade'][year][country_name]['exports_by_month']   = parts[16:28]
       trade_data['trade'][year][country_name]['exports_year_total'] = parts[28]
      
 
@@ -100,4 +102,4 @@ for parts in csv:
  
 print json.dumps(trade_data)
 
-sys.stderr.write("Couldn't geocode: " + str(could_not_geocode) + "\n")
+sys.stderr.write("\n\n------------------\n\nCouldn't geocode: " + str(could_not_geocode) + "\n")
