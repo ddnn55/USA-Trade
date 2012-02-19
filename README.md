@@ -18,10 +18,12 @@ Preview locally:
 
     cd www; python -m SimpleHTTPServer
 
-Future
-------
+Future / TODO
+-------------
 
-* JSON is a big slow download. Store data more efficiently in JSON (e.g. don't repeat country names a million times)
+* JSON is a big slow download.
+  - Add loading spinner
+  - Store data more efficiently in JSON (e.g. don't repeat country names a million times)
 * Add play/pause button
 * Add monthly data
 
