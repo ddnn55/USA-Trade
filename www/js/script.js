@@ -287,7 +287,11 @@
 
             console.log('tips:');
             console.log(tips);
-
+            console.log("hellooooooo");
+            $(window).resize(function(){
+               map_height = viewport().height - $('#header').height() - $('#timeline_container').height();
+               $('#map_canvas').css('height', map_height+'px');
+            });
 
          });
 
