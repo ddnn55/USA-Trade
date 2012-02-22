@@ -21,11 +21,14 @@ Preview locally:
 Future / TODO
 -------------
 
-* JSON is a big slow download.
+* add deficit only mode
+* add links to deeper information per country (i.e. 'site:census.gov/foreign-trade/statistics/ nigeria' google queries, or some other data source, etc.)
+* usa_trade_data.js is a big slow download.
   - Add loading spinner
   - Store data more efficiently in JSON (e.g. don't repeat country names a million times)
 * Add play/pause button
 * Add monthly data
+* Change graphics to canvas / WebGL because Google Maps Drawing API is slooooow for all this data. (or cull, etc...)
 
 Change name from "USA Trade" to "International Trade" and add more data:
 
