@@ -33,12 +33,15 @@
       #imports { background-color: #C55; }
 
       #map_canvas { height: 100%; width:100%; }
+      
+      #loading { position: absolute; display:block; z-index: 5000; left:0px; top:0px; width:100%; height:100%; }
     </style> 
     <link type="text/css" href="css/start/jquery-ui-1.8.17.custom.css" rel="Stylesheet" />
     <link type="text/css" href="css/tooltip.css" rel="Stylesheet" />
     <script type="text/javascript"
       src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCkETvZyOg_-XCWnwlTRFKbnO-sMlGOqvk&sensor=false&libraries=geometry">
     </script>
+    <script type="text/javascript" src="js/spin.min.js"></script>
     <script type="text/javascript" src="js/tooltip.js"></script>
     <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
     <script type="text/javascript" src="js/jquery-ui-1.8.17.custom.min.js"></script>
@@ -79,6 +82,9 @@
 <!--</div>-->
 
 
+<div id="loading">
+   
+</div>
 
 <div id="timeline_container" class="overlay">
    <div id="timeline">

@@ -1,3 +1,19 @@
+// show loading spinner
+var spinner_opts = {
+  lines: 12, // The number of lines to draw
+  length: 28, // The length of each line
+  width: 14, // The line thickness
+  radius: 33, // The radius of the inner circle
+  color: '#000', // #rgb or #rrggbb
+  speed: 1, // Rounds per second
+  trail: 60, // Afterglow percentage
+  shadow: false, // Whether to render a shadow
+  hwaccel: false // Whether to use hardware acceleration
+};
+var target = document.getElementById('loading');
+var spinner = new Spinner(spinner_opts).spin(target);
+
+
 USA_SPACING_X = 24.0;
 USA_SPACING_Y = 7.0;
 THOUSAND_DOLLARS_PER_PIXEL_WIDTH = 100000.0;
@@ -98,7 +114,7 @@ function createTradeFlows(country_name, country) {
 
      google.maps.event.addListener(flow, 'mouseover', function(event) {
         flow.setOptions({ fillColor: hover_color});
-        tooltip.show(tips[current_year][country_name][type], 300);
+        tooltip.show(tips[current_year][country_name][type], 350);
      });
      google.maps.event.addListener(flow, 'click', function(event) {
         if(current_year < 2000) return;
@@ -173,20 +189,30 @@ function formatMillionsOfDollars(millions, css_class) {
 }
 
 function updateHash() {
-//   if(last_hash == '')
-//      setYear(current_year); // FIXME hack to fix dead start =/
-//   if(last_hash != window.location.hash) {
-//      //console.log("not last hash");
-//      last_hash = window.location.hash;
-//      setState(window.location.hash);
-//   }
-//   else {
-//      window.location.hash = "/" + current_year + "/" + map.getCenter().toUrlValue() + "/" + map.getZoom();
-//      last_hash = window.location.hash;
-//   }
+   if(last_hash == '')
+      setYear(current_year); // FIXME hack to fix dead start =/
+   if(last_hash != window.location.hash) {
+      //console.log("not last hash");
+      last_hash = window.location.hash;
+      setState(window.location.hash);
+   }
+   else {
+      window.location.hash = "/" + current_year + "/" + map.getCenter().toUrlValue() + "/" + map.getZoom();
+      last_hash = window.location.hash;
+   }
 }
 
 function initialize() {
+
+
+   var target = document.getElementById('loading');
+   var spinner = new Spinner(spinner_opts).spin(target);
+
+
+
+
+
+
    var myOptions = {
       //center: USA_COORDINATE,
       center: initial_latlng ? initial_latlng : USA_COORDINATE,
@@ -197,9 +223,10 @@ function initialize() {
       mapTypeId: google.maps.MapTypeId.ROADMAP
    };
    map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-   //google.maps.event.addListener(map, 'bounds_changed', function() {
-   //   window.location.hash = "/" + map.getCenter().toUrlValue();
-   //});
+   google.maps.event.addListener(map, 'idle', function() {
+      //window.location.hash = "/" + map.getCenter().toUrlValue();
+      updateHash();
+   });
 
    //var int=self.setInterval("updateHash()", 1000);
 
@@ -216,6 +243,7 @@ function initialize() {
                    country_name != "Europe" &&
                    country_name != "NICS" &&
                    country_name != "OPEC" &&
+                   country_name != "International Organizations" &&
                    country_name != "Africa" ) {
                   //console.log(country_name);
                   createTradeFlows(country_name, country);
@@ -242,7 +270,8 @@ function initialize() {
                   tips[year][country_name] = {};
                   import_volume = formatMillionsOfDollars(stats['imports_year_total'], 'import_dollars');
                   export_volume = formatMillionsOfDollars(stats['exports_year_total'], 'export_dollars');
-                  detail_message = year < 2000 ? "No details available before 2000." : 'Click for details [census.gov<img src="images/external-link.png">]';
+                  detail_message = year < 2000 ? "No category details available before 2000." : 'Click for category details [census.gov<img src="images/external-link.png">]';
+                  // TODO integrate bar chart with top categories here?
                   tips[year][country_name]['import'] = ''+import_volume+" imported from "+country_name+" in "+year+"<br>"+detail_message;
                   tips[year][country_name]['export'] = ''+export_volume+" exported to "+country_name+" in "+year+"<br>"+detail_message;
                });
@@ -336,7 +365,7 @@ function initialize() {
             setYear(initial_year ? initial_year : high);
             //setYear(current_year);
             updateUI();
-            //setState(window.location.hash);
+            setState(window.location.hash);
 
             $(window).resize(updateUI);
 
@@ -349,8 +378,10 @@ function initialize() {
       setYear(current_year);
 
 
+   $('#loading').remove();
 
-   });
+
+   }); // end getJSON()
 
 
 }

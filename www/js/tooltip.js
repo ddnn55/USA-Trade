@@ -13,7 +13,7 @@ var tooltip=function(){
 	var id = 'tt';
 	var top = 3;
 	var left = 3;
-	var maxw = 300;
+	var maxw = 400;
 	var speed = 10;
 	var timer = 20;
 	var endalpha = 95;
@@ -50,7 +50,7 @@ var tooltip=function(){
 				b.style.display = 'block';
 			}
 			if(tt.offsetWidth > maxw){tt.style.width = maxw + 'px'}
-			h = direction == 'se' ? -top : parseInt(tt.offsetHeight) + top;
+			h = direction == 'se' ? -top-15 : parseInt(tt.offsetHeight) + top;
 			clearInterval(tt.timer);
 			tt.timer = setInterval(function(){tooltip.fade(1)},timer);
 		},
