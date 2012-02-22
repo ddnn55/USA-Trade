@@ -41,19 +41,19 @@ manual_geocodes = {
 'French Southern and Antarctic': [-49.296472,69.499512]
 }
 
-def geocode(country_name):
+def geocode(country_name, country_code):
    geocode_result = None
    try:
       geocode_result = g.geocode(country_name)
       place  = geocode_result[0]
       latLng = geocode_result[1]
-      trade_data['countries'][country_name] = {'latLng': latLng}
+      trade_data['countries'][country_name] = {'latLng': latLng, 'country_code': country_code}
       sys.stderr.write("Geocoded " + country_name + " with Google\n")
       return True
    except (ValueError, geopy.geocoders.google.GQueryError):
       try:
          latLng = manual_geocodes[country_name]
-         trade_data['countries'][country_name] = {'latLng': [str(latLng[0]), str(latLng[1])]}
+         trade_data['countries'][country_name] = {'latLng': [str(latLng[0]), str(latLng[1])], 'country_code': country_code}
          sys.stderr.write("Used manual geocode for " + country_name + " (Google couldn't geocode)\n")
             
          return True
@@ -68,7 +68,7 @@ def geocode(country_name):
    except geopy.geocoders.google.GTooManyQueriesError:
       sys.stderr.write("Exceeded Google query rate limit, sleeping for 1 second\n")
       time.sleep(1)
-      return geocode(country_name)
+      return geocode(country_name, country_code)
 
 for parts in csv:
    # ignore non data lines by trying to read year
@@ -84,8 +84,9 @@ for parts in csv:
          # have a new year
          trade_data['trade'][year] = {}
       country_name = parts[2]
+      country_code = parts[1]
       if country_name not in trade_data['countries'] and country_name not in could_not_geocode:
-         geocode(country_name)
+         geocode(country_name, country_code)
            
       if country_name not in trade_data['trade'][year]:
          trade_data['trade'][year][country_name] = {}

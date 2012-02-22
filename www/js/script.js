@@ -76,7 +76,8 @@ function createTradeFlows(country_name, country) {
      'import': {
         'fromLeftHeading': toLeftHeading,
         'toRightHeading':  fromRightHeading 
-     }
+     },
+     'country_code' : country['country_code']
   };
 
   var exportCoordinates = [ usaRoomCoordinate, toCoordinate, toCoordinate, usaRoomCoordinate ];
@@ -97,10 +98,14 @@ function createTradeFlows(country_name, country) {
 
      google.maps.event.addListener(flow, 'mouseover', function(event) {
         flow.setOptions({ fillColor: hover_color});
-        tooltip.show(tips[current_year][country_name][type], 200);
+        tooltip.show(tips[current_year][country_name][type], 300);
      });
-     //google.maps.event.addListener(flow, 'mousemove', function(event) {
-     //});
+     google.maps.event.addListener(flow, 'click', function(event) {
+        if(current_year < 2000) return;
+        $('#country_detail_country_code').val(countries[country_name]['country_code']);
+        $('#country_detail_year').val(current_year);
+        $('#country_detail_form').submit();
+     });
      google.maps.event.addListener(flow, 'mouseout', function(event) {
         flow.setOptions({ fillColor: color});
         tooltip.hide();
@@ -188,7 +193,7 @@ function initialize() {
       //disableDefaultUI: true,
       streetViewControl: false,
       mapTypeControl: false,
-      zoom: initial_zoom ? initial_zoom : 2,
+      zoom: initial_zoom ? initial_zoom : 3,
       mapTypeId: google.maps.MapTypeId.ROADMAP
    };
    map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
@@ -237,8 +242,9 @@ function initialize() {
                   tips[year][country_name] = {};
                   import_volume = formatMillionsOfDollars(stats['imports_year_total'], 'import_dollars');
                   export_volume = formatMillionsOfDollars(stats['exports_year_total'], 'export_dollars');
-                  tips[year][country_name]['import'] = ''+import_volume+" imported from "+country_name+" in "+year;
-                  tips[year][country_name]['export'] = '' + export_volume+" exported to "+country_name+" in "+year;
+                  detail_message = year < 2000 ? "No details available before 2000." : 'Click for details [census.gov<img src="images/external-link.png">]';
+                  tips[year][country_name]['import'] = ''+import_volume+" imported from "+country_name+" in "+year+"<br>"+detail_message;
+                  tips[year][country_name]['export'] = ''+export_volume+" exported to "+country_name+" in "+year+"<br>"+detail_message;
                });
 
             });
